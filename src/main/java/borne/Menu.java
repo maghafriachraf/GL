@@ -55,7 +55,7 @@ public class Menu {
         System.out.print("Choisissez une option: ");
     }
 
-    private static int getValidatedChoice(Scanner scanner) {
+    public static int getValidatedChoice(Scanner scanner) {
         int choice = -1;
         while (choice == -1) {
             try {
@@ -74,7 +74,7 @@ public class Menu {
     	
     }
 
-    static void registerClient(Scanner scanner) {
+    public static void registerClient(Scanner scanner) {
         try {
             System.out.print("Entrez votre prénom: ");
             String firstName = getValidatedInput(scanner);
@@ -97,7 +97,7 @@ public class Menu {
         }
     }
 
-    private static String getValidatedInput(Scanner scanner) {
+    public static String getValidatedInput(Scanner scanner) {
         String input = null;
         while (input == null || input.trim().isEmpty()) {
             input = scanner.nextLine();
@@ -136,6 +136,7 @@ public class Menu {
     }
 
     static void showAllClients() {
+    	
         // Implémentation de l'affichage de tous les clients
     }
 
