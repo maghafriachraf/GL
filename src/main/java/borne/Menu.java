@@ -27,7 +27,6 @@ public class Menu {
             try {
                 switch (choice) {
                     case 1:
-                        
                         registerClient(scanner);
                         break;
                     case 2:
