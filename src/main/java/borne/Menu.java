@@ -7,12 +7,7 @@ import java.time.LocalDateTime;
 
 public class Menu {
 
-    private static final ClientBD clientBD = new ClientBD();
-    private static final ReservationBD reservationDAO = new ReservationBD();
-    private static final ChargeStationBD chargeStationDAO = new ChargeStationBD();
-
     public static void main(String[] args) {
-        DbSetUp.main(new String[0]);
 
         Scanner scanner = new Scanner(System.in);
  
@@ -63,60 +58,7 @@ public class Menu {
     }
 
     static void makeReservation(Scanner scanner) {
-        System.out.print("Entrez votre adresse email: ");
-        String email = scanner.nextLine();
-        Optional<Client> clientOpt = clientBD.findByEmail(email);
-
-        if (!clientOpt.isPresent()) {
-            throw new IllegalArgumentException("Email non reconnu. Veuillez vous inscrire.");
-        }
-
-        Client client = clientOpt.get();
-        List<ChargeStation> availableStations = chargeStationDAO.findAvailableStations();
-
-        if (availableStations.isEmpty()) {
-            throw new IllegalArgumentException("Désolé, il n'y a pas de bornes de recharge disponibles actuellement.");
-        }
-
-        System.out.println("Bornes disponibles:");
-        for (int i = 0; i < availableStations.size(); i++) {
-            System.out.println((i + 1) + ". " + availableStations.get(i).getLocation());
-        }
-
-        System.out.print("Choisissez une borne (1-" + availableStations.size() + "): ");
-        int stationChoice = scanner.nextInt();
-        scanner.nextLine();  // Consume newline
-
-        if (stationChoice < 1 || stationChoice > availableStations.size()) {
-            throw new IllegalArgumentException("Choix invalide.");
-        }
-
-        ChargeStation chosenStation = availableStations.get(stationChoice - 1);
-
-        System.out.print("Entrez la durée prévue de recharge en minutes: ");
-        int duration = scanner.nextInt();
-        scanner.nextLine();  // Consume newline
-
-        if (duration <= 0) {
-            throw new IllegalArgumentException("La durée doit être un nombre positif.");
-        }
-
-        System.out.print("Entrez le numéro de plaque d'immatriculation: ");
-        String licensePlate = scanner.nextLine();
-
-        if (licensePlate.isEmpty()) {
-            throw new IllegalArgumentException("Le numéro de plaque d'immatriculation ne peut pas être vide.");
-        }
-
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime endTime = startTime.plusMinutes(duration);
-
-        Reservation reservation = new Reservation(licensePlate, startTime, endTime, client, false);
-        reservationDAO.save(reservation);
-
-        ChargeStationBD.updateStationStatus(chosenStation.getId(), "reserved");
-
-        System.out.println("Réservation créée avec succès pour la borne à l'emplacement: " + chosenStation.getLocation());
+      
     }
 
     static void registerClient(Scanner scanner) {
@@ -130,125 +72,36 @@ public class Menu {
         String mobileNumber = scanner.nextLine();
         validateMobileNumber(mobileNumber);
 
-        String email;
-        while (true) {
-            System.out.print("Entrez votre adresse mail: ");
-            email = scanner.nextLine();
-            try {
-                validateEmail(email);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
-        }
+       
 
-        System.out.print("Entrez votre numéro de carte de débit: ");
-        String debitCardNumber = scanner.nextLine();
-        validateDebitCardNumber(debitCardNumber);
-
-        System.out.print("Entrez votre/vos numéro(s) de plaque d'immatriculation (séparés par des virgules si plusieurs): ");
-        String licensePlatesInput = scanner.nextLine();
-        List<String> licensePlates = Arrays.asList(licensePlatesInput.split(","));
-
-        if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty() || licensePlates.isEmpty()) {
-            throw new IllegalArgumentException("Tous les champs doivent être remplis.");
-        }
-
-        Client client = new Client(firstName, lastName, address, mobileNumber, email, debitCardNumber, licensePlates);
-        clientBD.save(client);
-
-        System.out.println("Inscription réussie!");
+       
     }
 
     static void handleLicensePlate(Scanner scanner) {
-        System.out.print("Entrez le numéro de plaque d'immatriculation: ");
-        String licensePlate = scanner.nextLine();
-        Optional<Client> clientOpt = clientBD.findByLicensePlate(licensePlate);
-
-        if (!clientOpt.isPresent()) {
-            throw new IllegalArgumentException("Numéro de plaque non reconnu.");
-        }
-
-        System.out.println("Numéro de plaque reconnu.");
-        Optional<Reservation> reservationOpt = reservationDAO.findByLicensePlate(licensePlate);
-
-        if (reservationOpt.isPresent()) {
-            System.out.println("Réservation trouvée pour ce véhicule.");
-        } else {
-            System.out.println("Pas de réservation trouvée pour ce véhicule.");
-            System.out.print("Entrez la durée prévue de recharge en minutes: ");
-            int duration = scanner.nextInt();
-            scanner.nextLine();  // Consume newline
-
-            if (duration <= 0) {
-                throw new IllegalArgumentException("La durée doit être un nombre positif.");
-            }
-
-            Client client = clientOpt.get();
-            LocalDateTime startTime = LocalDateTime.now();
-            LocalDateTime endTime = startTime.plusMinutes(duration);
-
-            Reservation reservation = new Reservation(licensePlate, startTime, endTime, client, false);
-            reservationDAO.save(reservation);
-
-            System.out.println("Réservation temporaire créée pour " + duration + " minutes.");
-        }
+    
     }
 
     static void handleReservationNumber(Scanner scanner) {
-        System.out.print("Entrez le numéro de réservation: ");
-        String reservationNumber = scanner.nextLine();
-        Optional<Reservation> reservationOpt = reservationDAO.findByLicensePlate(reservationNumber);
 
-        if (!reservationOpt.isPresent()) {
-            throw new IllegalArgumentException("Numéro de réservation non trouvé.");
-        }
-
-        System.out.println("Réservation trouvée.");
     }
 
     public static void validateEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-        if (!email.matches(emailRegex) || !email.contains(".")) {
-            throw new IllegalArgumentException("L'email doit être sous le format email@mail.com");
-        }
+    
     }
 
     public static void validateMobileNumber(String mobileNumber) {
-        String mobileRegex = "^(\\+33|0033|0)[1-9]\\d{8}$";
-        if (!mobileNumber.matches(mobileRegex)) {
-            throw new IllegalArgumentException("Numéro de mobile invalide.");
-        }
+     
     }
 
     public static void validateDebitCardNumber(String cardNumber) {
-        String cardRegex = "^(\\d{16})$";
-        if (!cardNumber.matches(cardRegex)) {
-            throw new IllegalArgumentException("Numéro de carte de débit invalide.");
-        }
+    
     }
 
     static void showAllClients() {
-        List<Client> clients = clientBD.getAllClients();
-        if (clients.isEmpty()) {
-            System.out.println("Aucun client trouvé.");
-        } else {
-            System.out.println("Liste des clients:");
-            for (Client client : clients) {
-                System.out.println(client.getInfo());
-            }
-        }
+      
     }
 
     static void showAllReservations() {
-        List<Reservation> reservations = reservationDAO.getAllReservations();
-        if (reservations.isEmpty()) {
-            System.out.println("Aucune réservation trouvée.");
-        } else {
-            System.out.println("Liste des réservations:");
-            for (Reservation reservation : reservations) {
-                System.out.println(reservation.getInfo());
-            }
-        }
+   
     }
 }
